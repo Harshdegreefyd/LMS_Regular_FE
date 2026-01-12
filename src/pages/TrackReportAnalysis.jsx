@@ -1,0 +1,137 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { BASE_URL } from '../config/api';
+import ReportTable from '../components/MainReport/ReportTable';
+import DashboardHeader from '../components/MainReport/DashboardHeader';
+
+const timeIntervals = [
+  'Till 11 AM','11:00 - 12:00','12:00 - 13:00','13:00 - 14:00','14:00 - 15:00',
+  '15:00 - 16:00','16:00 - 17:00','17:00 - 18:00','18:00 - 19:00','After 7 PM'
+];
+
+function formatDate(date) {
+  if (!date) return '';
+  const d = new Date(date);
+  return d.toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+const TrackReportAnalysis = () => {
+  const [from, setFrom] = useState(() => new Date().toISOString().substring(0, 10));
+  const [to, setTo] = useState(() => new Date().toISOString().substring(0, 10));
+  const [loading, setLoading] = useState(true);
+  const [overall, setOverall] = useState({});
+  const [stats, setStats] = useState({});
+  const [tableRows, setTableRows] = useState([]);
+
+  useEffect(() => {
+    setLoading(true);
+    axios.get(`${BASE_URL}/studentcoursestatus/track-report?start_date=${from}&end_date=${to}`)
+      .then(res => {
+        setOverall(res.data.overall || {});
+        setStats(res.data.stats || {});
+        setTableRows(res.data.data || []);
+      })
+      .catch(() => {
+        setOverall({});
+        setStats({});
+        setTableRows([]);
+      })
+      .finally(() => setLoading(false));
+  }, [from, to]);
+
+  const changeRange = (days) => {
+    const f = new Date(from);
+    const t = new Date(to);
+    f.setDate(f.getDate() + days);
+    t.setDate(t.getDate() + days);
+    setFrom(f.toISOString().substring(0, 10));
+    setTo(t.toISOString().substring(0, 10));
+  };
+
+  const handlePrevDay = () => changeRange(-1);
+  const handleNextDay = () => changeRange(1);
+
+  const handleClear = () => {
+    const today = new Date().toISOString().substring(0, 10);
+    setFrom(today);
+    setTo(today);
+  };
+
+  const columns = [
+    { key: 'time_interval', label: 'Time Interval' },
+    { key: 'new_leads', label: 'New Leads', align: 'center', render: (val) => typeof val === 'object' ? val.count : (val || 0) },
+    { key: 'new_counselling', label: 'Counselling Done', align: 'center', render: (val) => typeof val === 'object' ? val.count : (val || 0) },
+    { key: 'connected_calls', label: 'Connected', align: 'center', render: (val) => typeof val === 'object' ? val.count : (val || 0) },
+  ];
+
+  const data = timeIntervals.map(time => {
+    return tableRows.find(r => r.time_interval === time) || { time_interval: time };
+  });
+
+  return (
+    <>
+      <DashboardHeader 
+        title="General Track Analytics"
+        actions={
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="px-4 py-2 bg-blue-50/50 rounded-xl border border-blue-100/50">
+              <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mr-3">Active Range</span>
+              <span className="text-sm font-bold text-slate-900">{formatDate(from)} — {formatDate(to)}</span>
+            </div>
+            
+            <ControlPanel
+              from={from}
+              to={to}
+              onPrev={handlePrevDay}
+              onNext={handleNextDay}
+              onClear={handleClear}
+            />
+          </div>
+        }
+      />
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+
+        <ReportTable
+          columns={columns}
+          data={data}
+          loading={loading}
+          emptyText="No tracking data found for this period"
+        />
+      </div>
+    </>
+  );
+};
+
+const ControlPanel = ({ from, to, onPrev, onNext, onClear }) => (
+  <div className="flex items-center gap-3">
+    <button
+      onClick={onPrev}
+      className="p-2.5 rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 bg-white transition-all shadow-sm"
+      aria-label="Previous Day"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    
+    <button
+      onClick={onNext}
+      className="p-2.5 rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white border border-blue-100 bg-white transition-all shadow-sm"
+      aria-label="Next Day"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+    
+    <button
+      onClick={onClear}
+      className="ml-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md shadow-blue-100 transition-all text-sm"
+    >
+      Reset View
+    </button>
+  </div>
+);
+
+export default TrackReportAnalysis;
