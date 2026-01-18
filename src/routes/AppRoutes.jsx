@@ -9,6 +9,7 @@ import CollegeBrochure from '../pages/CollegeBrochure';
 import ManageNILeads from '../pages/ManageNILeads';
 import Tracker4 from '../components/ReportAnalysis/Tracker4';
 import ReconRuleset from '../pages/ReconRuleset';
+import RuleSetDB from '../pages/RuleSetDB';
 
 const Loader = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -72,6 +73,7 @@ const AppRoutes = () => {
               <Route path="/website-chat" element={<RoleBasedRoute allowedRoles={["Supervisor", "l2", "l3", "Analyser", "to"]}><WebsiteChatDashboard /></RoleBasedRoute>} />
 
               <Route path="/analyserbucket" element={<RoleBasedRoute allowedRoles={["Supervisor"]}><AnalyserBucket /></RoleBasedRoute>} />
+              <Route path="/rulesetdb" element={<RoleBasedRoute allowedRoles={["Supervisor"]}><RuleSetDB /></RoleBasedRoute>} />
 
             </Route>
           </Route>

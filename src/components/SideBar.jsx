@@ -172,7 +172,13 @@ const Sidebar = ({
           icon: <FilterOutlined />,
           label: "NI Leads RuleSet",
           onClick: () => navigate('/managenileads')
-        }
+        },
+        {
+          key: "rulesetdb",
+          icon: <FilterOutlined />,
+          label: "DB RuleSet",
+          onClick: () => navigate('/rulesetdb')
+        },
       ]
     };
 
