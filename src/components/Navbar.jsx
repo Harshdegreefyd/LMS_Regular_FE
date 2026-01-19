@@ -592,109 +592,135 @@ const Navbar = () => {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              <Tooltip title="Refresh Notifications">
-                <Button
-                  type="text"
-                  icon={<ReloadOutlined />}
-                  onClick={loadNotifications}
-                  loading={loading}
-                  size="small"
-                />
-              </Tooltip>
+              {role !== "Supervisor" && role !== "Analyser" && (
+                <Tooltip title="Refresh Notifications">
+                  <Button
+                    type="text"
+                    icon={<ReloadOutlined />}
+                    onClick={loadNotifications}
+                    loading={loading}
+                    size="small"
+                  />
+                </Tooltip>
+              )}
 
               {role !== "Supervisor" &&
                 role !== "Analyser" &&
                 role !== "to" && <BreakModel />}
 
-              {role !== "Analyser" && (
-                <div className="flex items-center gap-3">
-                  <Tooltip title="Website Chat">
-                    <Badge
-                      count={chatUnreadCount}
-                      size="small"
-                      overflowCount={9}
-                      style={{
-                        display: chatUnreadCount > 0 ? "inline-flex" : "none",
-                        backgroundColor: "#52c41a",
-                      }}
-                    >
-                      <Button
-                        type="text"
-                        icon={<MessageOutlined style={{ fontSize: 18 }} />}
-                        className="text-gray-600 hover:text-green-600"
-                        onClick={() => navigate("/website-chat")}
-                      />
-                    </Badge>
-                  </Tooltip>
+              {role !== "Supervisor" &&
+                role !== "Analyser" &&
+                role !== "to" && (
+                  <div className="flex items-center gap-3">
+                    <Tooltip title="Website Chat">
+                      <Badge
+                        count={chatUnreadCount}
+                        size="small"
+                        overflowCount={9}
+                        style={{
+                          display: chatUnreadCount > 0 ? "inline-flex" : "none",
+                          backgroundColor: "#52c41a",
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          icon={<MessageOutlined style={{ fontSize: 18 }} />}
+                          className="text-gray-600 hover:text-green-600"
+                          onClick={() => navigate("/website-chat")}
+                        />
+                      </Badge>
+                    </Tooltip>
 
-                  <Tooltip title="WhatsApp Messages">
-                    <Badge
-                      count={whatsappUnreadCount}
-                      size="small"
-                      overflowCount={9}
-                      style={{
-                        display:
-                          whatsappUnreadCount > 0 ? "inline-flex" : "none",
-                        backgroundColor: "#25D366",
-                      }}
-                    >
-                      <Button
-                        type="text"
-                        icon={
-                          <WhatsAppOutlined
-                            style={{ fontSize: 18, color: "#25D366" }}
-                          />
-                        }
-                        className="text-gray-600 hover:text-green-600 h-10"
-                        onClick={() => setShowWhatsappModal(true)}
-                        loading={loading}
-                      />
-                    </Badge>
-                  </Tooltip>
+                    <Tooltip title="WhatsApp Messages">
+                      <Badge
+                        count={whatsappUnreadCount}
+                        size="small"
+                        overflowCount={9}
+                        style={{
+                          display:
+                            whatsappUnreadCount > 0 ? "inline-flex" : "none",
+                          backgroundColor: "#25D366",
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          icon={
+                            <WhatsAppOutlined
+                              style={{ fontSize: 18, color: "#25D366" }}
+                            />
+                          }
+                          className="text-gray-600 hover:text-green-600 h-10"
+                          onClick={() => setShowWhatsappModal(true)}
+                          loading={loading}
+                        />
+                      </Badge>
+                    </Tooltip>
 
-                  <Tooltip title="Callback Reminders">
-                    <Badge
-                      count={callbackUnreadCount}
-                      size="small"
-                      overflowCount={9}
-                      style={{
-                        display:
-                          callbackUnreadCount > 0 ? "inline-flex" : "none",
-                        backgroundColor: "#fa8c16",
-                      }}
-                    >
-                      <Button
-                        type="text"
-                        icon={<ClockCircleOutlined style={{ fontSize: 18 }} />}
-                        className="text-gray-600 hover:text-amber-600 h-10"
-                        onClick={() => setShowCallbackModal(true)}
-                        loading={loading}
-                      />
-                    </Badge>
-                  </Tooltip>
+                    <Tooltip title="Callback Reminders">
+                      <Badge
+                        count={callbackUnreadCount}
+                        size="small"
+                        overflowCount={9}
+                        style={{
+                          display:
+                            callbackUnreadCount > 0 ? "inline-flex" : "none",
+                          backgroundColor: "#fa8c16",
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          icon={
+                            <ClockCircleOutlined style={{ fontSize: 18 }} />
+                          }
+                          className="text-gray-600 hover:text-amber-600 h-10"
+                          onClick={() => setShowCallbackModal(true)}
+                          loading={loading}
+                        />
+                      </Badge>
+                    </Tooltip>
 
-                  <Tooltip title="Lead Notifications">
-                    <Badge
-                      count={leadUnreadCount}
-                      size="small"
-                      overflowCount={9}
-                      style={{
-                        display: leadUnreadCount > 0 ? "inline-flex" : "none",
-                        backgroundColor: "#1890ff",
-                      }}
-                    >
-                      <Button
-                        type="text"
-                        icon={<BellOutlined style={{ fontSize: 18 }} />}
-                        className="text-gray-600 hover:text-blue-600"
-                        onClick={() => setShowLeadModal(true)}
-                        loading={loading}
-                      />
-                    </Badge>
-                  </Tooltip>
-                </div>
+                    <Tooltip title="Lead Notifications">
+                      <Badge
+                        count={leadUnreadCount}
+                        size="small"
+                        overflowCount={9}
+                        style={{
+                          display: leadUnreadCount > 0 ? "inline-flex" : "none",
+                          backgroundColor: "#1890ff",
+                        }}
+                      >
+                        <Button
+                          type="text"
+                          icon={<BellOutlined style={{ fontSize: 18 }} />}
+                          className="text-gray-600 hover:text-blue-600"
+                          onClick={() => setShowLeadModal(true)}
+                          loading={loading}
+                        />
+                      </Badge>
+                    </Tooltip>
+                  </div>
+                )}
+              {role === "to" && (
+                <Tooltip title="Lead Notifications">
+                  <Badge
+                    count={leadUnreadCount}
+                    size="small"
+                    overflowCount={9}
+                    style={{
+                      display: leadUnreadCount > 0 ? "inline-flex" : "none",
+                      backgroundColor: "#1890ff",
+                    }}
+                  >
+                    <Button
+                      type="text"
+                      icon={<BellOutlined style={{ fontSize: 18 }} />}
+                      className="text-gray-600 hover:text-blue-600"
+                      onClick={() => setShowLeadModal(true)}
+                      loading={loading}
+                    />
+                  </Badge>
+                </Tooltip>
               )}
-
               <Dropdown
                 overlay={userMenu}
                 trigger={["click"]}
