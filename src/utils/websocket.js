@@ -228,9 +228,9 @@ class WebSocketService {
     const getSocketUrl = () => {
       const hostname = window.location.hostname;
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:3001';
+        return 'http://localhost:3031';
       }
-      return 'wss://lms-api-test.degreefyd.com';
+      return 'wss://lms-regular.degreefyd.com';
     };
 
     const socketUrl = getSocketUrl();

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Modal from '../common/Modal'
 import { getAllCounsellors, assignCounsellorsToStudents } from '../network/counsellor'
 import { Search, X, ChevronDown, User } from 'lucide-react'
-import { LeadsContext } from '../pages/Home'
 const AssignedLeadManually = ({
     setIsAssignedtoL2,
     setIsAssignedtoL3,
@@ -26,15 +25,9 @@ const AssignedLeadManually = ({
             try {
                 setLoading(true)
                 const res = await getAllCounsellors()
-                const allCounsellors = res || []
-
-                // Filter counsellors by role
-                const filteredByRole = allCounsellors.filter(counsellor =>
-                    counsellor.role?.toLowerCase() === targetRole
-                )
-
-                setCounsellors(filteredByRole)
-                setFilteredCounsellors(filteredByRole)
+                console.log(res)
+                setCounsellors(res)
+                setFilteredCounsellors(res)
             } catch (error) {
                 console.error('Error fetching counsellors:', error)
                 setCounsellors([])
