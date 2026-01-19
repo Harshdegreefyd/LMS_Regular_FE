@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Tag, Play, Pause } from "lucide-react";
 
-
 const ActivityRemarkstabs = ({ studentId, student }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [remarks, setRemarks] = useState([]);
@@ -9,7 +8,6 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
   const [loading, setLoading] = useState(false);
   const [playingAudio, setPlayingAudio] = useState(null);
   const audioRefs = useRef({});
-
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -59,6 +57,27 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
         </span>
       </button>
     );
+  };
+
+  // Helper function to parse student comments
+  const parseStudentComments = (comments) => {
+    if (!comments) return [];
+    
+    try {
+      // Check if it's already an array
+      if (Array.isArray(comments)) return comments;
+      
+      // Check if it's a JSON string
+      if (typeof comments === 'string') {
+        const parsed = JSON.parse(comments);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Error parsing student comments:', error);
+      return [];
+    }
   };
 
   const renderRemarks = () => {
@@ -130,84 +149,92 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
   };
 
   const renderActivities = () => {
-    if (student.lead_activities.length === 0) {
+    if (!student.lead_activities || student.lead_activities.length === 0) {
       return <div className="text-gray-500 text-center py-4">No activities found</div>;
     }
 
     return (
       <div className="space-y-4">
-        {student?.lead_activities.map((activity, index) => (
-          <div key={index} className="border rounded-lg p-4 border-gray-200">
-            <div className="grid grid-cols-3 gap-4 items-start mb-3">
-              {/* Date and Time */}
-              <div className="flex flex-col items-center w-24 flex-shrink-0">
-                <div className="text-sm text-black">
-                  {new Date(activity.created_at).toLocaleDateString()}
-                </div>
-                <div className="text-xs text-black">
-                  {new Date(activity.updated_at).toLocaleTimeString()}
-                </div>
-              </div>
-
-              <div className="flex items-center text-sm text-black w-24 flex-shrink-0">
-                System
-              </div>
-
-              {/* Activity details */}
-              <div className="flex flex-col min-w-0">
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {activity.source && (
-                    <div className="px-2 py-1 bg-gray-100 font-semibold text-gray-800 text-sm rounded-full flex items-center">
-                      <Tag className="h-3 w-3 mr-1" />
-                      {activity.source}
-                    </div>
-                  )}
-                  {activity.utm_campaign && (
-                    <div className="px-2 py-1 bg-gray-100 font-semibold text-gray-800 text-sm rounded-full flex items-center">
-                      <Tag className="h-3 w-3 mr-1" />
-                      {activity.utm_campaign}
-                    </div>
-                  )}
-                </div>
-                <div className="text-lg break-words font-normal">
-                  {activity.source_url}
-                </div>
-                <AudioPlayer
-                  audioUrl={activity.call_recording_url}
-                  audioId={`activity-${index}`}
-                />
-              </div>
-            </div>
-
-            {/* Student Comments Section */}
-            <div className="space-y-2">
-              { (activity.student_comment && Array.isArray(activity.student_comment)) &&  activity?.student_comment?.map((comment, commentIndex) => (
-                <div
-                  key={commentIndex}
-                  className="px-3 py-2 bg-gray-100 text-gray-800 text-sm rounded-md"
-                >
-                  <div className="font-semibold break-words">{comment.question}</div>
-                  <div className="text-gray-600 break-words">
-                    {comment.answer?.trim() ? comment.answer : 'N/A'}
+        {student?.lead_activities.map((activity, index) => {
+          const studentComments = parseStudentComments(activity.student_comment);
+          
+          return (
+            <div key={index} className="border rounded-lg p-4 border-gray-200">
+              <div className="grid grid-cols-3 gap-4 items-start mb-3">
+                {/* Date and Time */}
+                <div className="flex flex-col items-center w-24 flex-shrink-0">
+                  <div className="text-sm text-black">
+                    {new Date(activity.created_at).toLocaleDateString()}
+                  </div>
+                  <div className="text-xs text-black">
+                    {new Date(activity.updated_at).toLocaleTimeString()}
                   </div>
                 </div>
-              ))}
+
+                <div className="flex items-center text-sm text-black w-24 flex-shrink-0">
+                  System
+                </div>
+
+                {/* Activity details */}
+                <div className="flex flex-col min-w-0">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {activity.source && (
+                      <div className="px-2 py-1 bg-gray-100 font-semibold text-gray-800 text-sm rounded-full flex items-center">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {activity.source}
+                      </div>
+                    )}
+                    {activity.utm_campaign && (
+                      <div className="px-2 py-1 bg-gray-100 font-semibold text-gray-800 text-sm rounded-full flex items-center">
+                        <Tag className="h-3 w-3 mr-1" />
+                        {activity.utm_campaign}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-lg break-words font-normal">
+                    {activity.source_url}
+                  </div>
+                  <AudioPlayer
+                    audioUrl={activity.call_recording_url}
+                    audioId={`activity-${index}`}
+                  />
+                </div>
+              </div>
+
+              {/* Student Comments Section */}
+              {studentComments.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {studentComments.map((comment, commentIndex) => (
+                    <div
+                      key={commentIndex}
+                      className="px-3 py-2 bg-gray-100 text-gray-800 text-sm rounded-md"
+                    >
+                      <div className="font-semibold break-words">{comment.question}</div>
+                      <div className="text-gray-600 break-words">
+                        {comment.answer?.trim() ? comment.answer : 'N/A'}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
-  const renderCredentials = () => {
 
+  const renderCredentials = () => {
     if (loading) {
       return <div className="text-gray-500 text-center py-4">Loading credentials...</div>;
     }
 
-    if (student?.collegeCredentials.length === 0) {
+    if (!student?.collegeCredentials || student?.collegeCredentials.length === 0) {
       return <div className="text-gray-500 text-center py-4">No credentials found</div>;
     }
+    
     const credentials = Array.isArray(student?.collegeCredentials) ? student.collegeCredentials : [];
+    
     return (
       <div className="space-y-4">
         {credentials.map((credential, index) => (
@@ -276,6 +303,7 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
       </div>
     );
   };
+
   const renderCombined = () => {
     const remarksArray = Array.isArray(student?.student_remarks) ? student?.student_remarks : [];
     const activitiesArray = Array.isArray(student.lead_activities) ? student.lead_activities : [];
@@ -371,6 +399,8 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
             );
           } else if (item.type === 'activity') {
             const activity = item.data;
+            const studentComments = parseStudentComments(activity.student_comment);
+            
             return (
               <div
                 key={`activity-${item.originalIndex}`}
@@ -414,19 +444,23 @@ const ActivityRemarkstabs = ({ studentId, student }) => {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                {(activity.student_comment && Array.isArray(activity.student_comment)) && activity.student_comment?.map((comment, commentIndex) => (
-                    <div
-                      key={commentIndex}
-                      className="px-3 py-2 bg-gray-100 text-gray-800 text-sm rounded-md"
-                    >
-                      <div className="font-semibold break-words">{comment.question}</div>
-                      <div className="text-gray-600 break-words">
-                        {comment.answer?.trim() ? comment.answer : 'N/A'}
+                
+                {/* Student Comments Section */}
+                {studentComments.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    {studentComments.map((comment, commentIndex) => (
+                      <div
+                        key={commentIndex}
+                        className="px-3 py-2 bg-gray-100 text-gray-800 text-sm rounded-md"
+                      >
+                        <div className="font-semibold break-words">{comment.question}</div>
+                        <div className="text-gray-600 break-words">
+                          {comment.answer?.trim() ? comment.answer : 'N/A'}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           } else if (item.type === 'credential') {
