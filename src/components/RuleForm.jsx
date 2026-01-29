@@ -1,5 +1,8 @@
 import React from 'react';
-import MultiSelect from './MultiSelect';
+import { Form, Input, Select, Divider, Typography, Space } from 'antd';
+
+const { Text } = Typography;
+const { TextArea } = Input;
 
 const RuleForm = ({
   rule,
@@ -27,7 +30,7 @@ const RuleForm = ({
 
   const fieldDisplayNames = {
     utmCampaign: 'UTM Campaign',
-    first_source_url: 'Domain URLs (one per line)',
+    first_source_url: 'Domain URLs',
     source: 'Source',
     mode: 'Mode',
     preferred_budget: 'Budget Range (₹)',
@@ -40,82 +43,72 @@ const RuleForm = ({
   };
 
   const fieldGroups = [
-    ['first_source_url','utmCampaign', 'source', 'mode'],
-    ['preferred_state', 'preferred_city'],
-    ['preferred_degree', 'preferred_specialization', 'preferred_level'],
-    ['preferred_budget', 'current_profession']
+    { title: 'Source & Campaign', fields: ['first_source_url', 'utmCampaign', 'source', 'mode'] },
+    { title: 'Location Preferences', fields: ['preferred_state', 'preferred_city'] },
+    { title: 'Education Background', fields: ['preferred_degree', 'preferred_specialization', 'preferred_level'] },
+    { title: 'Others', fields: ['preferred_budget', 'current_profession'] }
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Rule Name *
-        </label>
-        <input
-          type="text"
+    <Form layout="vertical">
+      <Form.Item label={<Text strong>Rule Name</Text>} required>
+        <Input
+          size="large"
           value={rule?.custom_rule_name || ''}
-          onChange={(e) =>
-            onRuleChange(prev => ({
-              ...prev,
-              custom_rule_name: e.target.value
-            }))
-          }
-          placeholder="Enter rule name (e.g., High Budget Bachelors)"
-          className="w-full px-3 py-2.5 border border-gray-300 rounded-lg 
-                     focus:outline-none focus:ring-2 focus:ring-blue-500 
-                     focus:border-blue-500"
-          required
+          onChange={(e) => onRuleChange(prev => ({ ...prev, custom_rule_name: e.target.value }))}
+          placeholder="e.g., High Budget Bachelors"
         />
-      </div>
+      </Form.Item>
 
-      <div className="space-y-6">
-        {fieldGroups.map((group, groupIndex) => (
-          <div key={groupIndex} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {group.map(field => (
-              <div key={field}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {fieldDisplayNames[field] || field}
-                </label>
+      <Divider orientation="left" style={{ margin: '32px 0 16px' }}>Filter Conditions</Divider>
+
+      {fieldGroups.map((group, groupIndex) => (
+        <div key={groupIndex} style={{ marginBottom: '24px' }}>
+          <Text type="secondary" style={{ fontSize: '12px', marginBottom: '8px', display: 'block' }}>{group.title}</Text>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+            {group.fields.map(field => (
+              <Form.Item key={field} label={fieldDisplayNames[field] || field} style={{ marginBottom: 0 }}>
                 {field === 'first_source_url' ? (
-                  <textarea
-                    value={rule.conditions[field] || ''}
+                  <TextArea
+                    value={rule.conditions?.[field] || ''}
                     onChange={(e) => handleConditionChange(field, e.target.value)}
-                    placeholder="example.com&#10;test.com&#10;demo.com"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg 
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 
-                               focus:border-blue-500 resize-none"
+                    placeholder="example.com&#10;test.com"
                     rows={3}
                   />
                 ) : (
-                  <MultiSelect
-                    options={options[field] || ['Any']}
-                    value={rule.conditions[field] || []}
-                    onChange={(val) => handleConditionChange(field, val)}
+                  <Select
+                    mode="multiple"
+                    style={{ width: '100%' }}
                     placeholder={`Select ${fieldDisplayNames[field] || field}`}
+                    value={rule.conditions?.[field] || []}
+                    onChange={(val) => handleConditionChange(field, val)}
+                    options={options[field]?.map(opt => ({ label: opt, value: opt })) || []}
+                    maxTagCount="responsive"
+                    allowClear
                   />
                 )}
-              </div>
+              </Form.Item>
             ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Assign to Counsellors *
-        </label>
-        <MultiSelect
-          options={options.counsellors}
-          value={rule.assigned_counsellor_ids}
+      <Divider orientation="left" style={{ margin: '32px 0 16px' }}>Assignment</Divider>
+
+      <Form.Item label={<Text strong>Assign to L2 Agents</Text>} required extra="Leads matching these conditions will be distributed among selected agents using round-robin.">
+        <Select
+          mode="multiple"
+          size="large"
+          style={{ width: '100%' }}
+          placeholder="Select agent(s)"
+          value={rule.assigned_counsellor_ids || []}
           onChange={handleCounsellorChange}
-          placeholder="Select counsellor(s)"
+          options={options.counsellors?.map(agent => ({ label: agent.counsellor_name, value: agent.counsellor_id })) || []}
+          maxTagCount="responsive"
+          allowClear
         />
-        <p className="text-xs text-gray-500 mt-2">
-          Leads matching this rule will be assigned to selected counsellors using round-robin
-        </p>
-      </div>
-    </div>
+      </Form.Item>
+    </Form>
   );
 };
 

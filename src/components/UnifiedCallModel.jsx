@@ -766,7 +766,6 @@ const UnifiedCallModal = ({
                     </div>
                 </div>
             </Modal>
-            {console.log(showCounselingFormPrompt)}
             {showCounselingFormPrompt && (
                 <Modal
                     isOpen={showCounselingFormPrompt}
