@@ -148,18 +148,23 @@ const LeadAssignmentL3 = () => {
     const fetchInitialData = async () => {
         try {
             const response = await fetch(`${BASE_URL}/universitycourse/dropdown`);
-            const data = await response.json();
-            if (data) {
-                setDropdownData(data);
+            const Jsondata = await response.json();
+            
+            console.log('Initial Dropdown Data:', Jsondata);
+            const {data,success}=Jsondata;
+            if (success) {
+                console.log('Dropdown Data:', data);
+               
+             setDropdownData(data);
             }
         } catch (error) {
             console.error('Error fetching initial data:', error);
         }
     };
 
-    // Fetch filtered dropdown data based on selections
     const fetchFilteredData = async (filters) => {
         try {
+            console.log('Fetching filtered data with filters:', filters);
             const queryParams = new URLSearchParams();
             Object.keys(filters).forEach(key => {
                 if (filters[key] && filters[key].length > 0) {
@@ -397,7 +402,7 @@ const LeadAssignmentL3 = () => {
         if (!arr || arr.length === 0) return 'Any';
         return arr.join(', ');
     };
-
+    console.log('Dropdown Data State: final', dropdownData);
     return (
         <div className="min-h-screen bg-gray-50 p-6 px-10">
             <div className=" mx-auto">
@@ -425,7 +430,7 @@ const LeadAssignmentL3 = () => {
                             <div className="mb-4">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">University</label>
                                 <MultiSelectDropdown
-                                    options={dropdownData.universities || []}
+                                    options={dropdownData.universities || dropdownData?.university_name || []}
                                     selected={currentRule.university_name}
                                     onChange={handleUniversityChange}
                                     placeholder="Select Universities"
