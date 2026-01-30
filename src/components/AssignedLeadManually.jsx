@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Modal from '../common/Modal'
 import { getAllCounsellors, assignCounsellorsToStudents } from '../network/counsellor'
 import { Search, X, ChevronDown, User } from 'lucide-react'
+
 const AssignedLeadManually = ({
     setIsAssignedtoL2,
     setIsAssignedtoL3,
@@ -16,6 +17,7 @@ const AssignedLeadManually = ({
     const [isDropdownOpen, setIsDropdownOpen] = useState(false)
     const [loading, setLoading] = useState(true)
     const [assignLoader, setassignLoader] = useState(false)
+    
     const isL3Assignment = isAssignedtoL3
     const assignmentType = isL3Assignment ? 'L3' : 'L2'
     const targetRole = isL3Assignment ? 'l3' : 'l2'
@@ -26,8 +28,20 @@ const AssignedLeadManually = ({
                 setLoading(true)
                 const res = await getAllCounsellors()
                 console.log(res)
-                setCounsellors(res)
-                setFilteredCounsellors(res)
+                
+                // Filter counsellors based on target role
+                const roleFilteredCounsellors = res.filter(counsellor => {
+                    // Assuming counsellor has a role field that indicates their level
+                    // You might need to adjust the property name based on your API response
+                    const counsellorRole = counsellor.role?.toLowerCase() || 
+                                          counsellor.counsellor_role?.toLowerCase() ||
+                                          counsellor.level?.toLowerCase()
+                    
+                    return counsellorRole === targetRole
+                })
+                
+                setCounsellors(roleFilteredCounsellors)
+                setFilteredCounsellors(roleFilteredCounsellors)
             } catch (error) {
                 console.error('Error fetching counsellors:', error)
                 setCounsellors([])
@@ -70,7 +84,6 @@ const AssignedLeadManually = ({
 
     const handleAssign = async () => {
         try {
-
             setassignLoader(true)
             const assignmentData = {
                 assignmentType,
@@ -80,13 +93,12 @@ const AssignedLeadManually = ({
                     name: agent.counsellor_name,
                     email: agent.counsellor_email
                 }))
-
             };
+            
             const response = await assignCounsellorsToStudents(assignmentData);
             const { updatedStudents } = response.data;
 
             if (response) {
-
                 alert(`Successfully assigned ${selectedStudent.length} students to ${selectedAgents.length} ${assignmentType} counsellor(s)`);
                 window.location.reload()
             } else {
@@ -97,7 +109,6 @@ const AssignedLeadManually = ({
         } catch (error) {
             console.error('Error during assignment:', error);
         } finally {
-
             if (isL3Assignment) {
                 setIsAssignedtoL3(false);
             } else {
@@ -108,9 +119,7 @@ const AssignedLeadManually = ({
     };
 
     const handleClose = () => {
-
         if (isL3Assignment) {
-
             setIsAssignedtoL3(false)
         } else {
             setIsAssignedtoL2(false)
@@ -157,7 +166,6 @@ const AssignedLeadManually = ({
                     </label>
 
                     {/* Selected Agents */}
-
                     {selectedAgents.length > 0 && (
                         <div className="mb-3">
                             <div className="flex flex-wrap gap-2">
@@ -223,7 +231,10 @@ const AssignedLeadManually = ({
                                         </div>
                                     ) : filteredCounsellors.length === 0 ? (
                                         <div className="p-4 text-center text-gray-500 text-sm">
-                                            {searchTerm ? 'No agents found matching your search' : `No ${assignmentType} agents available`}
+                                            {searchTerm 
+                                                ? 'No agents found matching your search' 
+                                                : `No ${assignmentType} agents available. Please contact admin to add ${assignmentType} agents.`
+                                            }
                                         </div>
                                     ) : (
                                         filteredCounsellors.map((counsellor) => {
